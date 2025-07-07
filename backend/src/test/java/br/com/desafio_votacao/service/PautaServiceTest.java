@@ -14,6 +14,8 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -30,29 +32,34 @@ class PautaServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    /*@Test
-    void listarTodasPautas_DeveRetornarTodasPautas() {
-        // Arrange
+    @Test
+    void listarTodasPautas_DeveRetornarTodasPautasPaginadas() {
         Pauta pauta1 = new Pauta();
         pauta1.setId("1");
         pauta1.setTitulo("Pauta 1");
-        
+
         Pauta pauta2 = new Pauta();
         pauta2.setId("2");
         pauta2.setTitulo("Pauta 2");
-        
+
+        when(pautaRepository.count()).thenReturn(Mono.just(2L));
         when(pautaRepository.findAll()).thenReturn(Flux.just(pauta1, pauta2));
-        
-        // Act & Assert
-        StepVerifier.create(pautaService.listarPautasPaginadas())
-            .expectNext(pauta1)
-            .expectNext(pauta2)
+
+        StepVerifier.create(pautaService.listarPautasPaginadas(0, 10))
+            .assertNext(page -> {
+                assertEquals(0, page.page());
+                assertEquals(10, page.size());
+                assertEquals(2L, page.totalElements());
+                assertEquals(2, page.content().size());
+                assertTrue(page.content().contains(pauta1));
+                assertTrue(page.content().contains(pauta2));
+            })
             .verifyComplete();
-    }*/
+    }
+
 
     @Test
     void buscarPautaPorId_QuandoPautaExiste_DeveRetornarPauta() {
-        // Arrange
         String id = "1";
         Pauta pauta = new Pauta();
         pauta.setId(id);
@@ -60,7 +67,6 @@ class PautaServiceTest {
         
         when(pautaRepository.findById(id)).thenReturn(Mono.just(pauta));
         
-        // Act & Assert
         StepVerifier.create(pautaService.buscarPautaPorId(id))
             .expectNext(pauta)
             .verifyComplete();
@@ -147,7 +153,6 @@ class PautaServiceTest {
 
     @Test
     void verificarSessaoAberta_QuandoSessaoJaFechou_DeveRetornarFalse() {
-        // Arrange
         String pautaId = "1";
         
         Pauta pautaComSessaoExpirada = new Pauta();

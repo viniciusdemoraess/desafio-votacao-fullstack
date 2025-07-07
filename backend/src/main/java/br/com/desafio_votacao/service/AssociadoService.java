@@ -11,12 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * Serviço para gerenciamento de associados
- */
+
 @Service
 public class AssociadoService {
     
@@ -31,11 +28,6 @@ public class AssociadoService {
         this.cpfValidator = cpfValidator;
     }
     
-    /**
-     * Lista todos os associados cadastrados
-     * 
-     * @return Flux com todos os associados
-     */
     public Mono<PageResponse<Associado>> listarTodosAssociadosPaginado(int page, int size) {
         long skip = (long) page * size;
 
