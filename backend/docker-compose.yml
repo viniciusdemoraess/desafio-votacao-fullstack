@@ -1,0 +1,54 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/votacao-db --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  app:
+    build: .
+    container_name: java-app
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  pmd:
+    image: ghcr.io/pmd/pmd:latest
+    volumes:
+      - ./:/app
+    working_dir: /app
+    entrypoint: ["pmd", "check", "-d", "src", "-R", "category/java/bestpractices.xml", "-f", "text"]
+    restart: "no"
+    networks:
+      - backend
+
+
+  semgrep:
+    image: returntocorp/semgrep
+    volumes:
+      - ./:/src
+    entrypoint: ["semgrep", "--config=auto", "/src"]
+    restart: "no"
+    networks:
+      - backend
+
+volumes:
+  mongodb_data:
+
+networks:
+  backend:
+    driver: bridge
