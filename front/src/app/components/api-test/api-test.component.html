@@ -1,0 +1,75 @@
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5>Teste Completo do Sistema de Votação</h5>
+    </div>
+    <div class="card-body">
+      <!-- Teste Sequencial Completo -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h6>🧪 Teste Sequencial Completo</h6>
+          <p class="text-muted">Executa toda a sequência: Criar Associado → Criar Pauta → Abrir Sessão → Registrar Voto</p>
+          <button class="btn btn-success btn-lg" (click)="executarTesteCompleto()" [disabled]="testAndoCompleto">
+            <span *ngIf="testAndoCompleto" class="spinner-border spinner-border-sm me-2"></span>
+            {{ testAndoCompleto ? 'Executando...' : 'Iniciar Teste Completo' }}
+          </button>
+
+          <!-- Log de Execução -->
+          <div class="mt-3" *ngIf="logTeste.length > 0">
+            <h6>📋 Log de Execução:</h6>
+            <div class="alert"
+                 [ngClass]="log.status === 'success' ? 'alert-success' : log.status === 'error' ? 'alert-danger' : 'alert-info'"
+                 *ngFor="let log of logTeste">
+              <strong>{{ log.step }}:</strong> {{ log.message }}
+              <div *ngIf="log.data" class="mt-2">
+                <small><pre>{{ log.data | json }}</pre></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Testes Individuais -->
+      <div class="row">
+        <div class="col-md-6">
+          <h6>🔧 Testes Individuais</h6>
+
+          <!-- Teste de Voto -->
+          <div class="mb-3">
+            <h6>Teste de Envio de Voto</h6>
+            <button class="btn btn-primary me-2" (click)="testarVoto()">Testar com HttpClient</button>
+            <button class="btn btn-success" (click)="testarVotoComService()">Testar com VotoService</button>
+            <div class="mt-3" *ngIf="votoResponse">
+              <h6>Resposta:</h6>
+              <pre>{{ votoResponse | json }}</pre>
+            </div>
+            <div class="mt-3" *ngIf="votoError">
+              <h6>Erro:</h6>
+              <pre class="text-danger">{{ votoError | json }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <h6>📋 Teste de Listagem</h6>
+          <button class="btn btn-info" (click)="testarListagem()">Testar Pautas</button>
+          <div class="mt-3" *ngIf="pautasResponse">
+            <h6>Pautas:</h6>
+            <pre>{{ pautasResponse | json }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h6>⚙️ Configurações:</h6>
+        <ul>
+          <li><strong>API URL:</strong> {{ apiUrl }}</li>
+          <li><strong>Status:</strong> {{ statusConexao }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
