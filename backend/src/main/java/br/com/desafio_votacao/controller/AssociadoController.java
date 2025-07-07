@@ -2,6 +2,7 @@ package br.com.desafio_votacao.controller;
 
 import br.com.desafio_votacao.client.CpfValidator;
 import br.com.desafio_votacao.dto.AssociadoDTO;
+import br.com.desafio_votacao.dto.PageResponse;
 import br.com.desafio_votacao.model.Associado;
 import br.com.desafio_votacao.service.AssociadoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import jakarta.validation.Valid;
@@ -41,10 +41,12 @@ public class AssociadoController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Associados listados com sucesso")
     })
-    public Flux<Associado> listarTodosAssociados(
+    public Mono<PageResponse<Associado>> listarTodosAssociados(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
+        
         logger.info("[listarTodosAssociados()] Listando todos os associados");
+
         return associadoService.listarTodosAssociadosPaginado(page, size);
     }
     
@@ -56,7 +58,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "404", description = "Associado não encontrado")
     })
     public Mono<ResponseEntity<Associado>> buscarAssociadoPorId(@PathVariable String id) {
+
         logger.info("[buscarAssociadoPorId()] Buscando associado com ID: {}", id);
+
         return associadoService.buscarAssociadoPorId(id)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -70,7 +74,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "404", description = "Associado não encontrado")
     })
     public Mono<ResponseEntity<Associado>> buscarAssociadoPorCpf(@PathVariable String cpf) {
+
         logger.info("[buscarAssociadoPorCpf()] Buscando associado com CPF: {}", cpf);
+
         return associadoService.buscarAssociadoPorCpf(cpf)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -85,7 +91,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "500", description = "Erro ao verificar status do CPF")
     })
     public Mono<ResponseEntity<CpfValidator.CpfStatus>> verificarStatusCpf(@PathVariable String cpf) {
+
         logger.info("[verificarStatusCpf()] Verificando status do CPF: {}", cpf);
+        
         return cpfValidator.validarCpf(cpf)
                 .flatMap(cpfStatus -> {
                     if (ABLE_TO_VOTE.equals(cpfStatus.status())) {
@@ -110,7 +118,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "409", description = "Já existe um associado com este CPF")
     })
     public Mono<Associado> criarAssociado(@Valid @RequestBody AssociadoDTO associadoDTO) {
+
         logger.info("[criarAssociado()] Cadastrando novo associado: {}", associadoDTO);
+
         return associadoService.criarAssociado(associadoDTO);
     }
     
@@ -123,7 +133,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "409", description = "Já existe outro associado com este CPF")
     })
     public Mono<Associado> atualizarAssociado(@PathVariable String id, @Valid @RequestBody AssociadoDTO associadoDTO) {
+
         logger.info("[atualizarAssociado()] Atualizando associado com ID: {}", id);
+
         return associadoService.atualizarAssociado(id, associadoDTO);
     }
     
@@ -135,7 +147,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "404", description = "Associado não encontrado")
     })
     public Mono<Associado> alterarStatusAssociado(@PathVariable String id, @RequestParam Boolean ativo) {
+
         logger.info("[alterarStatusAssociado()] Alterando status do associado com ID: {} para: {}", id, ativo ? "ativo" : "inativo");
+
         return associadoService.alterarStatusAssociado(id, ativo);
     }
     
@@ -148,7 +162,9 @@ public class AssociadoController {
         @ApiResponse(responseCode = "404", description = "Associado não encontrado")
     })
     public Mono<Void> excluirAssociado(@PathVariable String id) {
+
         logger.info("[excluirAssociado()] Excluindo associado com ID: {}", id);
+
         return associadoService.excluirAssociado(id);
     }
 }

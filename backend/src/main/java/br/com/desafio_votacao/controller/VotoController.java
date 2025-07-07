@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +29,7 @@ public class VotoController {
 
     private static final Logger logger = LoggerFactory.getLogger(VotoController.class);
 
-    @Autowired
-    private VotoService votoService;
+    private final VotoService votoService;
 
     @PostMapping
     @Operation(summary = "Registra um voto", description = "Registra o voto de um associado em uma pauta específica")
@@ -57,7 +55,9 @@ public class VotoController {
     @Operation(summary = "Lista votos de uma pauta", description = "Retorna todos os votos registrados para uma pauta específica")
     @ApiResponse(responseCode = "200", description = "Votos listados com sucesso")
     public Flux<Voto> listarVotosPorPauta(@PathVariable String pautaId) {
+
         logger.info("[listarVotosPorPauta()] Listando votos da pauta ID: {}", pautaId);
+
         return votoService.listarVotosPorPauta(pautaId);
     }
 
@@ -65,7 +65,9 @@ public class VotoController {
     @Operation(summary = "Obter resultado da votação", description = "Retorna a contabilização dos votos de uma pauta")
     @ApiResponse(responseCode = "200", description = "Resultado obtido com sucesso")
     public Mono<Map<String, Long>> obterResultado(@PathVariable String pautaId) {
+
         logger.info("[obterResultado()] Obtendo resultado da votação para pauta ID: {}", pautaId);
+
         return votoService.contabilizarVotosPorPauta(pautaId);
     }
 }
