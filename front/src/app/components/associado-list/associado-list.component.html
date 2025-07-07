@@ -1,0 +1,129 @@
+
+<div class="container mt-4">
+  <h2>Gerenciar Associados</h2>
+
+  <!-- Formulário para cadastrar novo associado -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Cadastrar Novo Associado</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="associadoForm" (ngSubmit)="cadastrarAssociado()">
+        <div class="row">
+          <div class="col-md-8">                  <div class="mb-3">
+                <label for="cpf" class="form-label">CPF *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="cpf"
+                  formControlName="cpf"
+                  placeholder="000.000.000-00"
+                  [class.is-invalid]="isFieldInvalid('cpf')"
+                  maxlength="14"
+                  (input)="formatarCpf($event)">
+                <div class="form-text">
+                  Digite um CPF válido no formato 000.000.000-00
+                </div>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('cpf')">
+                  <div *ngIf="associadoForm.get('cpf')?.errors?.['required']">
+                    CPF é obrigatório
+                  </div>
+                  <div *ngIf="associadoForm.get('cpf')?.errors?.['invalidCpf']">
+                    CPF deve ter um formato válido (000.000.000-00)
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label">&nbsp;</label>
+              <div class="d-grid">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="associadoForm.invalid || loading">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                  Cadastrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <div *ngIf="success" class="alert alert-success">
+        {{ success }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de associados -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Associados Cadastrados</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>CPF</th>
+              <th>Data Cadastro</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let associado of associados">
+              <td>{{ associado.cpf }}</td>
+              <td>{{ formatDate(associado.dataCadastro) }}</td>
+              <td>
+                <span class="badge" [ngClass]="associado.ativo ? 'bg-success' : 'bg-secondary'">
+                  {{ associado.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    class="btn btn-outline-primary"
+                    (click)="verificarStatusCpf(associado.cpf)"
+                    [disabled]="loadingStatus === associado.id">
+                    <span *ngIf="loadingStatus === associado.id" class="spinner-border spinner-border-sm me-1"></span>
+                    Verificar CPF
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="associados.length === 0" class="text-center py-4">
+          <p class="text-muted">Nenhum associado cadastrado</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação -->
+  <div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {{ confirmMessage }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="confirmarAcao()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
