@@ -12,6 +12,7 @@
         "test",
         "model",
         "service",
-        "utils"
+        "utils",
+        "pageable"
     ]
 }
