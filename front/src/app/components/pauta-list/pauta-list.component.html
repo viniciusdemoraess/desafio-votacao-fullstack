@@ -1,0 +1,134 @@
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Pautas</h2>
+    <a routerLink="/pautas/nova" class="btn btn-primary">Nova Pauta</a>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let pauta of pautas">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ pauta.titulo }}</h5>
+          <p class="card-text flex-grow-1">{{ pauta.descricao }}</p>
+
+          <div class="mb-3">
+            <small class="text-muted">
+              Criada em: {{ formatDate(pauta.dataCriacao) }}
+            </small>
+          </div>
+
+          <div class="mb-3">
+            <span class="badge" [ngClass]="pauta.sessaoAberta ? 'bg-success' : 'bg-secondary'">
+              {{ pauta.sessaoAberta ? 'Sessão Aberta' : 'Sessão Fechada' }}
+            </span>
+          </div>
+
+          <div class="mt-auto">
+            <div class="d-grid gap-2">
+              <a [routerLink]="['/pautas', pauta.id]" class="btn btn-outline-primary btn-sm">
+                Ver Detalhes
+              </a>
+              <button
+                *ngIf="!pauta.sessaoAberta"
+                (click)="mostrarModalDuracao(pauta.id)"
+                class="btn btn-success btn-sm"
+                [disabled]="loading">
+                Abrir Sessão
+              </button>
+              <a
+                *ngIf="pauta.sessaoAberta"
+                [routerLink]="['/pautas', pauta.id, 'votar']"
+                class="btn btn-warning btn-sm">
+                Votar
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="pautas.length === 0" class="text-center py-5">
+    <p class="text-muted">Nenhuma pauta cadastrada.</p>
+    <a routerLink="/pautas/nova" class="btn btn-primary">Criar primeira pauta</a>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+</div>
+
+<!-- Modal para definir duração da sessão -->
+<div class="modal fade" [class.show]="mostrandoModal" [style.display]="mostrandoModal ? 'block' : 'none'"
+     tabindex="-1" aria-labelledby="modalDuracaoLabel" [attr.aria-hidden]="!mostrandoModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDuracaoLabel">⏰ Abrir Sessão de Votação</h5>
+        <button type="button" class="btn-close" (click)="fecharModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Informações da pauta -->
+        <div class="card bg-light mb-3" *ngIf="pautaSelecionada">
+          <div class="card-header">
+            <strong>📋 Pauta Selecionada</strong>
+          </div>
+          <div class="card-body">
+            <h6 class="card-title">{{ pautaSelecionada.titulo }}</h6>
+            <p class="card-text text-muted">{{ pautaSelecionada.descricao }}</p>
+            <small class="text-muted">
+              <i class="bi bi-calendar"></i> Criada em: {{ formatDate(pautaSelecionada.dataCriacao) }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Configuração da duração -->
+        <p><strong>Por quantos minutos a sessão de votação deve ficar aberta?</strong></p>
+        <div class="mb-3">
+          <label for="duracaoInput" class="form-label">Duração (minutos) *</label>
+          <input
+            type="number"
+            class="form-control"
+            id="duracaoInput"
+            [(ngModel)]="duracaoSelecionada"
+            min="1"
+            max="60"
+            placeholder="Digite entre 1 e 60 minutos">
+          <div class="form-text">
+            <i class="bi bi-info-circle"></i>
+            Mínimo: 1 minuto | Máximo: 60 minutos
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <i class="bi bi-lightbulb"></i>
+          <strong>Dica:</strong>
+          <ul class="mb-0 mt-2">
+            <li><strong>1-5 min:</strong> Para decisões rápidas</li>
+            <li><strong>5-15 min:</strong> Para discussões normais</li>
+            <li><strong>15-60 min:</strong> Para debates importantes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModal()">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="confirmarAberturaSessao()"
+          [disabled]="!duracaoSelecionada || duracaoSelecionada < 1 || duracaoSelecionada > 60">
+          <i class="bi bi-play-circle"></i>
+          Abrir Sessão ({{ duracaoSelecionada || 0 }} min)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop do modal -->
+<div class="modal-backdrop fade" [class.show]="mostrandoModal"
+     [style.display]="mostrandoModal ? 'block' : 'none'"
+     (click)="fecharModal()"></div>

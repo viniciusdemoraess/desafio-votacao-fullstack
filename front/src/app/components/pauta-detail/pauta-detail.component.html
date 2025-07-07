@@ -1,0 +1,125 @@
+
+<div class="container mt-4" *ngIf="pauta">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">{{ pauta.titulo }}</h3>
+          <span class="badge fs-6" [ngClass]="pauta.sessaoAberta ? 'bg-success' : 'bg-secondary'">
+            {{ pauta.sessaoAberta ? 'Sessão Aberta' : 'Sessão Fechada' }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ pauta.descricao }}</p>
+
+          <div class="row">
+            <div class="col-md-6">
+              <small class="text-muted">
+                <strong>Criada em:</strong> {{ formatDate(pauta.dataCriacao) }}
+              </small>
+            </div>
+            <div class="col-md-6" *ngIf="pauta.inicioSessao">
+              <small class="text-muted">
+                <strong>Sessão iniciada:</strong> {{ formatDateTime(pauta.inicioSessao) }}
+              </small>
+            </div>
+          </div>
+
+          <div class="mt-3" *ngIf="pauta.fimSessao">
+            <small class="text-muted">
+              <strong>Sessão encerrada:</strong> {{ formatDateTime(pauta.fimSessao) }}
+            </small>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button
+              *ngIf="!pauta.sessaoAberta && !pauta.fimSessao"
+              (click)="abrirSessao()"
+              class="btn btn-success"
+              [disabled]="loading">
+              Abrir Sessão
+            </button>
+
+            <a
+              *ngIf="pauta.sessaoAberta"
+              [routerLink]="['/pautas', pauta.id, 'votar']"
+              class="btn btn-warning">
+              Votar
+            </a>
+
+            <a routerLink="/pautas" class="btn btn-outline-secondary">
+              Voltar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Resultado da Votação</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="resultado; else noResult">
+            <div class="text-center">
+              <h3 class="text-primary">{{ resultado.total }}</h3>
+              <p class="text-muted mb-3">Total de votos</p>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-6">
+                <h4 class="text-success">{{ resultado.sim }}</h4>
+                <p class="text-muted">Sim</p>
+              </div>
+              <div class="col-6">
+                <h4 class="text-danger">{{ resultado.nao }}</h4>
+                <p class="text-muted">Não</p>
+              </div>
+            </div>
+
+            <div class="progress mb-3">
+              <div
+                class="progress-bar bg-success"
+                [style.width.%]="getPercentualSim()">
+              </div>
+              <div
+                class="progress-bar bg-danger"
+                [style.width.%]="getPercentualNao()">
+              </div>
+            </div>
+
+            <div class="text-center">
+              <span class="badge fs-6"
+                [ngClass]="resultado.sim > resultado.nao ? 'bg-success' : 'bg-danger'">
+                {{ resultado.sim > resultado.nao ? 'APROVADA' : 'REJEITADA' }}
+              </span>
+            </div>
+          </div>
+
+          <ng-template #noResult>
+            <p class="text-muted text-center">Nenhum voto registrado ainda</p>
+          </ng-template>
+
+          <button
+            (click)="carregarResultado()"
+            class="btn btn-outline-primary btn-sm w-100 mt-3"
+            [disabled]="loadingResultado">
+            <span *ngIf="loadingResultado" class="spinner-border spinner-border-sm me-2"></span>
+            Atualizar Resultado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger mt-3">
+    {{ error }}
+  </div>
+</div>
+
+<div *ngIf="!pauta && !loading" class="container mt-4">
+  <div class="alert alert-warning">
+    Pauta não encontrada.
+  </div>
+</div>

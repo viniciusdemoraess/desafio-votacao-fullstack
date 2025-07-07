@@ -1,0 +1,74 @@
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="mb-0">Nova Pauta</h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="pautaForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="titulo" class="form-label">Título *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="titulo"
+                formControlName="titulo"
+                [class.is-invalid]="isFieldInvalid('titulo')"
+                placeholder="Digite o título da pauta (mínimo 3 caracteres)">
+              <div class="form-text">
+                {{ pautaForm.get('titulo')?.value?.length || 0 }}/3 caracteres (mínimo)
+              </div>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('titulo')">
+                <div *ngIf="pautaForm.get('titulo')?.errors?.['required']">
+                  Título é obrigatório
+                </div>
+                <div *ngIf="pautaForm.get('titulo')?.errors?.['minlength']">
+                  Título deve ter pelo menos 3 caracteres
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descricao" class="form-label">Descrição *</label>
+              <textarea
+                class="form-control"
+                id="descricao"
+                rows="4"
+                formControlName="descricao"
+                [class.is-invalid]="isFieldInvalid('descricao')"
+                placeholder="Descreva detalhadamente a pauta (mínimo 10 caracteres)"></textarea>
+              <div class="form-text">
+                {{ pautaForm.get('descricao')?.value?.length || 0 }}/10 caracteres (mínimo)
+              </div>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('descricao')">
+                <div *ngIf="pautaForm.get('descricao')?.errors?.['required']">
+                  Descrição é obrigatória
+                </div>
+                <div *ngIf="pautaForm.get('descricao')?.errors?.['minlength']">
+                  Descrição deve ter pelo menos 10 caracteres
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="pautaForm.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                Criar Pauta
+              </button>
+              <a routerLink="/pautas" class="btn btn-secondary">Cancelar</a>
+            </div>
+          </form>
+
+          <div *ngIf="error" class="alert alert-danger mt-3">
+            {{ error }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

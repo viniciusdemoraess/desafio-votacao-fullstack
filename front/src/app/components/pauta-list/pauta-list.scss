@@ -1,0 +1,13 @@
+
+.modal {
+  z-index: 1050;
+}
+.modal-backdrop {
+  z-index: 1040;
+}
+.modal.show {
+  opacity: 1;
+}
+.modal-backdrop.show {
+  opacity: 0.5;
+}
