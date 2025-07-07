@@ -1,0 +1,12 @@
+{
+    "conventionalCommits.scopes": [
+        "git",
+        "docker",
+        "maven",
+        "config",
+        "swagger",
+        "validator",
+        "scheduler",
+        "k6"
+    ]
+}
