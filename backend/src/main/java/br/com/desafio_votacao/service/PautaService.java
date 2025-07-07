@@ -1,5 +1,6 @@
 package br.com.desafio_votacao.service;
 
+import br.com.desafio_votacao.dto.PageResponse;
 import br.com.desafio_votacao.dto.PautaDTO;
 import br.com.desafio_votacao.model.Pauta;
 import br.com.desafio_votacao.repository.PautaRepository;
@@ -7,8 +8,6 @@ import br.com.desafio_votacao.repository.PautaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,10 +22,22 @@ public class PautaService {
     @Autowired
     private PautaRepository pautaRepository;
 
-    public Flux<Pauta> listarPautasPaginadas(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return pautaRepository.findAllBy(pageable); // método customizado no seu repository
+    public Mono<PageResponse<Pauta>> listarPautasPaginadas(int page, int size) {
+        long skip = (long) page * size;
+    
+        return pautaRepository.count()
+            .flatMap(totalElements -> 
+                pautaRepository.findAll()
+                    .skip(skip)
+                    .take(size)
+                    .collectList()
+                    .map(content -> {
+                        return new PageResponse<>(content, page, size, totalElements);
+                    })
+            );
     }
+    
+
 
     public Mono<Pauta> buscarPautaPorId(String id) {
         return pautaRepository.findById(id);

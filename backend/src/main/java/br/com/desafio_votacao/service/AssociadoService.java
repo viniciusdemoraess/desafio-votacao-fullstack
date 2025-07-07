@@ -2,6 +2,7 @@ package br.com.desafio_votacao.service;
 
 import br.com.desafio_votacao.client.CpfValidator;
 import br.com.desafio_votacao.dto.AssociadoDTO;
+import br.com.desafio_votacao.dto.PageResponse;
 import br.com.desafio_votacao.model.Associado;
 import br.com.desafio_votacao.repository.AssociadoRepository;
 import org.slf4j.Logger;
@@ -35,10 +36,16 @@ public class AssociadoService {
      * 
      * @return Flux com todos os associados
      */
-    public Flux<Associado> listarTodosAssociadosPaginado(int page, int size) {
-        return associadoRepository.findAll()
-                .skip((long) page * size)
-                .take(size);
+    public Mono<PageResponse<Associado>> listarTodosAssociadosPaginado(int page, int size) {
+        long skip = (long) page * size;
+
+        return associadoRepository.count()
+                .flatMap(total -> associadoRepository.findAll()
+                    .skip(skip)
+                    .take(size)
+                    .collectList()
+                    .map(content -> new PageResponse<>(content, page, size, total))
+                );
     }
     
     /**
