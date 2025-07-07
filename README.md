@@ -1,4 +1,4 @@
-# Sistema de Votação - Documentação
+# Sistema de Votação - Documentação (Spring Boot/Angular)
 
 ## Descrição
 
