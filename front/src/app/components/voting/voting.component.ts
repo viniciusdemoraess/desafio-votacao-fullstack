@@ -59,8 +59,8 @@ export class VotingComponent implements OnInit {
 
   carregarAssociados() {
     this.associadoService.listarTodos().subscribe({
-      next: (associados) => {
-        this.associados = associados.filter(a => a.ativo);
+      next: (res) => {
+        this.associados = res.content.filter(a => a.ativo);
       },
       error: (err) => {
         this.error = 'Erro ao carregar associados';

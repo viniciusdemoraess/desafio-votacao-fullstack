@@ -14,6 +14,9 @@ import { DateUtils } from '../../utils/date-utils';
 })
 export class AssociadoListComponent implements OnInit {
   associados: Associado[] = [];
+  totalAssociados = 0;
+  paginaAtual = 0;
+  tamanhoPagina = 10;
   associadoForm: FormGroup;
   loading = false;
   loadingStatus: string | null = null;
@@ -38,15 +41,25 @@ export class AssociadoListComponent implements OnInit {
   }
 
   carregarAssociados() {
-    this.associadoService.listarTodos().subscribe({
-      next: (associados) => {
-        this.associados = associados;
+    this.associadoService.listarTodos(this.paginaAtual, this.tamanhoPagina).subscribe({
+      next: (res) => {
+        this.associados = res.content;
+        this.totalAssociados = res.totalElements;
       },
       error: (err) => {
         this.error = 'Erro ao carregar associados';
         console.error(err);
       }
     });
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.totalAssociados / this.tamanhoPagina);
+  }
+
+  irParaPagina(pagina: number) {
+    this.paginaAtual = pagina;
+    this.carregarAssociados();
   }
 
   cadastrarAssociado() {

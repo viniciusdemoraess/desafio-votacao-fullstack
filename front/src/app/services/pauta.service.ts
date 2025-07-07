@@ -12,8 +12,10 @@ export class PautaService {
 
   constructor(private http: HttpClient) {}
 
-  listarTodas(): Observable<Pauta[]> {
-    return this.http.get<Pauta[]>(this.baseUrl);
+  listarTodas(page: number = 0, size: number = 10): Observable<{ content: Pauta[], totalElements: number }> {
+    return this.http.get<{ content: Pauta[], totalElements: number }>(
+      `${this.baseUrl}?page=${page}&size=${size}`
+    );
   }
 
   buscarPorId(id: string): Observable<Pauta> {

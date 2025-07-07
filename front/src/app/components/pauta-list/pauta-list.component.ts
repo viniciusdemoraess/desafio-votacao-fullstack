@@ -9,11 +9,14 @@ import { Pauta } from '../../models/pauta.model';
   selector: 'app-pauta-list',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
-  styles: [`./pauta-list.scss`],
+  styleUrls: ['./pauta-list.scss'],
   templateUrl: `./pauta-list.component.html`
 })
 export class PautaListComponent implements OnInit {
   pautas: Pauta[] = [];
+  totalPautas = 0;
+  paginaAtual = 0;
+  tamanhoPagina = 11;
   loading = false;
   error: string | null = null;
 
@@ -29,13 +32,18 @@ export class PautaListComponent implements OnInit {
     this.carregarPautas();
   }
 
+  get totalPaginas(): number {
+    return Math.ceil(this.totalPautas / this.tamanhoPagina);
+  }
+
   carregarPautas() {
     this.loading = true;
     this.error = null;
 
-    this.pautaService.listarTodas().subscribe({
-      next: (pautas) => {
-        this.pautas = pautas;
+    this.pautaService.listarTodas(this.paginaAtual, this.tamanhoPagina).subscribe({
+      next: (res) => {
+        this.pautas = res.content;
+        this.totalPautas = res.totalElements;
         this.loading = false;
       },
       error: (err) => {
@@ -44,6 +52,11 @@ export class PautaListComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  irParaPagina(pagina: number) {
+    this.paginaAtual = pagina;
+    this.carregarPautas();
   }
 
   abrirSessao(pautaId: string) {

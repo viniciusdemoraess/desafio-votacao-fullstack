@@ -34,23 +34,23 @@ export class DashboardComponent implements OnInit {
   carregarDados() {
     // Carregar pautas
     this.pautaService.listarTodas().subscribe({
-      next: (pautas) => {
-        this.totalPautas = pautas.length;
-        this.pautasAbertas = pautas.filter(p => p.sessaoAberta).length;
-        this.pautasRecentes = pautas
+      next: (res) => {
+        this.totalPautas = res.totalElements;
+        this.pautasAbertas = res.content.filter(p => p.sessaoAberta).length;
+        this.pautasRecentes = res.content
           .sort((a, b) => new Date(b.dataCriacao).getTime() - new Date(a.dataCriacao).getTime())
           .slice(0, 5);
-        this.pautasComSessaoAberta = pautas.filter(p => p.sessaoAberta);
+        this.pautasComSessaoAberta = res.content.filter(p => p.sessaoAberta);
       },
       error: (err) => console.error('Erro ao carregar pautas:', err)
     });
 
     // Carregar associados
     this.associadoService.listarTodos().subscribe({
-      next: (associados) => {
-        this.associados = associados;
-        this.totalAssociados = associados.length;
-        this.associadosAtivos = associados.filter(a => a.ativo).length;
+      next: (res) => {
+        this.associados = res.content;
+        this.totalAssociados = res.totalElements;
+        this.associadosAtivos = res.content.filter(a => a.ativo).length;
       },
       error: (err) => console.error('Erro ao carregar associados:', err)
     });

@@ -12,8 +12,10 @@ export class AssociadoService {
 
   constructor(private http: HttpClient) {}
 
-  listarTodos(): Observable<Associado[]> {
-    return this.http.get<Associado[]>(this.baseUrl);
+  listarTodos(page: number = 0, size: number = 10): Observable<{ content: Associado[], totalElements: number }> {
+    return this.http.get<{ content: Associado[], totalElements: number }>(
+      `${this.baseUrl}?page=${page}&size=${size}`
+    );
   }
 
   buscarPorId(id: string): Observable<Associado> {
