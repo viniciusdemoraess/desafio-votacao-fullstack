@@ -9,7 +9,7 @@ O componente `api-test` implementa um teste sequencial completo que executa toda
 1. **Inicie o backend** (Spring Boot) na porta 8080
 2. **Inicie o frontend** Angular:
    ```bash
-   cd /home/vinicius/votos-angular
+   cd /home/vinicius/votosangular
    ng serve --port 4201
    ```
 3. **Acesse** `http://localhost:4201/api-test`

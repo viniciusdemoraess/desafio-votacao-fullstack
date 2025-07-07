@@ -76,20 +76,20 @@ src/app/
 ```bash
 # Clonar o repositório
 git clone <repository-url>
-cd votos-angular
+cd votosangular
 
 # Instalar dependências
-npm install
+npm install --legacy-peer-deps
 
 # Iniciar servidor de desenvolvimento
-npm start
+npm run start
 ```
 
 A aplicação estará disponível em: `http://localhost:4200`
 
 ### Scripts Disponíveis
 ```bash
-npm start          # Inicia servidor de desenvolvimento
+npm run start          # Inicia servidor de desenvolvimento
 npm run build      # Build para produção
 npm run test       # Executa testes
 npm run watch      # Build em modo watch

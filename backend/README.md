@@ -66,6 +66,73 @@ Sistema de votação para cooperativas, onde cada associado possui um voto e as 
 
 ## Instruções para Execução
 
+### Via docker
+
+##### Iniciar todos os serviços e ferramentas necessárias em segundo plano
+
+```bash
+docker compose up -d
+```
+
+*Importante:* O docker compose up -d não apenas sobe a aplicação, mas também inicia duas ferramentas de análise de código para ajudar na qualidade e segurança do projeto:
+
+*PMD:* Ferramenta de análise estática de código Java que detecta potenciais bugs, más práticas e problemas de estilo no código-fonte.
+
+*Semgrep:* Ferramenta de análise estática flexível que permite detectar vulnerabilidades, erros comuns e padrões de código indesejados, suportando várias linguagens.
+
+Os containers vão iniciar, mas como o pmd e o semgrep estão configurados com restart: "no" e só rodam o comando de análise uma vez, eles vão subir, executar a análise e sair imediatamente.
+
+Para ver o resultado da execução:
+
+- Listar containers, incluindo os que já pararam
+
+```bash
+docker ps -a
+```
+- Procure os containers com nomes pmd e semgrep (ou IDs correspondentes).
+
+- Ver logs do container PMD
+
+```bash
+docker logs pmd
+```
+
+- Vai mostrar o relatório de análise estática gerado pelo PMD, normalmente listando problemas, más práticas, etc.
+
+- Ver logs do container Semgrep
+
+```bash
+docker logs semgrep
+```
+
+- Vai mostrar as vulnerabilidades ou padrões identificados pelo Semgrep conforme a configuração --config=auto.
+
+#### Resumo prático:
+
+```bash
+docker compose up -d
+
+docker logs pmd
+
+docker logs semgrep
+```
+
+- Se quiser reexecutar as análises, rode:
+
+```bash
+docker compose up pmd
+docker compose up semgrep
+```
+
+ou ainda:
+
+```bash
+docker start -a pmd
+docker start -a semgrep
+```
+
+### Manualmente
+
 1. **Configurar MongoDB**
 
    Opção 1: MongoDB Local
@@ -94,6 +161,35 @@ Sistema de votação para cooperativas, onde cada associado possui um voto e as 
    ```
    http://localhost:8080/webjars/swagger-ui/index.html
    ```
+
+
+### Volume do MongoDB no Docker Compose
+
+No `docker-compose.yml` deste projeto, o serviço do MongoDB foi configurado com um volume nomeado chamado `mongodb_data`. Veja o trecho correspondente:
+
+```yaml
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/votacao-db --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  mongodb_data:
+```
+
+> Os dados do MongoDB são persistidos automaticamente graças ao volume nomeado `mongodb_data` configurado no `docker-compose.yml`, garantindo que todas as informações sejam salvas no disco do host mesmo após reinicializações ou remoção dos containers, preservando assim o banco de dados do sistema de votação.
 
 ## Testando a API
 
@@ -139,42 +235,24 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export const options = {
-  stages: [
-    { duration: '30s', target: 50 }, // Aumenta para 50 usuários em 30s
-    { duration: '1m', target: 100 }, // Mantém 100 usuários por 1 min
-    { duration: '20s', target: 0 },  // Reduz para 0
-  ],
+  vus: 1000,      // 1000 usuários virtuais simultâneos
+  duration: '20s', // duração total do teste
 };
 
-export default function() {
-  // Substitua pela ID de uma pauta real
-  const pautaId = 'sua-pauta-id';
-  
-  // Gera um CPF aleatório a cada requisição
-  const cpf = Math.floor(10000000000 + Math.random() * 90000000000).toString();
-  
-  // Voto aleatório (sim ou não)
-  const voto = Math.random() > 0.5;
-  
-  const payload = JSON.stringify({
-    associadoId: cpf,
-    voto: voto
-  });
+const BASE_URL = 'http://localhost:8080/api/v1';
 
-  const params = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+export default function () {
+  let res = http.get(`${BASE_URL}/pautas?page=0&size=10`);
 
-  const res = http.post(`http://localhost:8080/api/v1/pautas/${pautaId}/votos`, payload, params);
-  
   check(res, {
-    'status is 201': (r) => r.status === 201 || r.status === 400 || r.status === 403 || r.status === 409,
+    'status 200': (r) => r.status === 200,
+    'retornou JSON': (r) => r.headers['Content-Type'].includes('application/json'),
   });
-  
-  sleep(0.1);
+
+  // Pausa opcional para simular tempo entre requisições
+  sleep(1);
 }
+
 ```
 
 3. Executar:
