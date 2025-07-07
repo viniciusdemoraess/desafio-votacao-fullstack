@@ -1,0 +1,146 @@
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+        <h1 class="display-4">Sistema de Votação</h1>
+        <p class="lead">
+          Gerencie pautas, associados e sessões de votação de forma simples e eficiente.
+        </p>
+        <hr class="my-4">
+        <p>
+          Crie novas pautas, abra sessões de votação e acompanhe os resultados em tempo real.
+        </p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-light btn-lg" routerLink="/pautas/nova" role="button">
+            <i class="bi bi-plus-circle"></i> Nova Pauta
+          </a>
+          <a class="btn btn-outline-light btn-lg" routerLink="/associados" role="button">
+            <i class="bi bi-people"></i> Gerenciar Associados
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards de estatísticas -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="bi bi-file-text display-4 text-primary"></i>
+          <h3 class="mt-2">{{ totalPautas }}</h3>
+          <p class="text-muted">Total de Pautas</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="bi bi-play-circle display-4 text-success"></i>
+          <h3 class="mt-2">{{ pautasAbertas }}</h3>
+          <p class="text-muted">Sessões Abertas</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="bi bi-people display-4 text-info"></i>
+          <h3 class="mt-2">{{ totalAssociados }}</h3>
+          <p class="text-muted">Associados</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="bi bi-person-check display-4 text-warning"></i>
+          <h3 class="mt-2">{{ associadosAtivos }}</h3>
+          <p class="text-muted">Associados Ativos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pautas recentes -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Pautas Recentes</h5>
+          <a routerLink="/pautas" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+        </div>
+        <div class="card-body">
+          <div *ngIf="pautasRecentes.length > 0; else noPautas">
+            <div class="list-group list-group-flush">
+              <div
+                class="list-group-item d-flex justify-content-between align-items-start"
+                *ngFor="let pauta of pautasRecentes">
+                <div class="ms-2 me-auto">
+                  <div class="fw-bold">{{ pauta.titulo }}</div>
+                  <small class="text-muted">{{ pauta.descricao | slice:0:100 }}...</small>
+                  <br>
+                  <small class="text-muted">Criada em: {{ formatDate(pauta.dataCriacao) }}</small>
+                </div>
+                <span class="badge" [ngClass]="pauta.sessaoAberta ? 'bg-success' : 'bg-secondary'">
+                  {{ pauta.sessaoAberta ? 'Aberta' : 'Fechada' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <ng-template #noPautas>
+            <div class="text-center py-4">
+              <i class="bi bi-inbox display-4 text-muted"></i>
+              <p class="text-muted mt-2">Nenhuma pauta cadastrada ainda</p>
+              <a routerLink="/pautas/nova" class="btn btn-primary">Criar primeira pauta</a>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Ações Rápidas</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a routerLink="/pautas/nova" class="btn btn-primary">
+              <i class="bi bi-plus-circle"></i> Nova Pauta
+            </a>
+            <a routerLink="/associados" class="btn btn-success">
+              <i class="bi bi-person-plus"></i> Cadastrar Associado
+            </a>
+            <a routerLink="/pautas" class="btn btn-info">
+              <i class="bi bi-list"></i> Ver Todas as Pautas
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessões abertas -->
+      <div class="card mt-3" *ngIf="pautasComSessaoAberta.length > 0">
+        <div class="card-header">
+          <h5 class="mb-0">Votações em Andamento</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <div
+              class="list-group-item d-flex justify-content-between align-items-center"
+              *ngFor="let pauta of pautasComSessaoAberta">
+              <div>
+                <div class="fw-bold">{{ pauta.titulo }}</div>
+                <small class="text-muted">{{ formatDateTime(pauta.inicioSessao!) }}</small>
+              </div>
+              <a [routerLink]="['/pautas', pauta.id, 'votar']" class="btn btn-sm btn-warning">
+                Votar
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
