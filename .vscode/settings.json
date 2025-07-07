@@ -7,6 +7,10 @@
         "swagger",
         "validator",
         "scheduler",
-        "k6"
+        "k6",
+        "initial",
+        "test",
+        "model",
+        "service"
     ]
 }
